@@ -42,6 +42,8 @@
 		hrs: 'hrs'
 	};
 
+	var $elCache = null;
+
 	var methods = {
 
 		init: function(options) {
@@ -106,7 +108,7 @@
 
 			// check if list needs to be rendered
 			if (!list || list.length === 0 || typeof settings.durationTime === 'function') {
-				_render(self);
+				$elCache = _render(self);
 				list = self.data('timepicker-list');
 			}
 
@@ -194,7 +196,7 @@
 		},
 
 		get: function() {
-			return $(this);
+			return $elCache;
 		},
 
 		getSecondsFromMidnight: function() {
@@ -215,6 +217,7 @@
 
 		remove: function() {
 			var self = this;
+			$elCache = null;
 
 			// check if this element is a timepicker
 			if (!self.hasClass('ui-timepicker-input')) {
@@ -424,6 +427,8 @@
 			var $legend = $('<div class="timepicker-legend" />').append(settings.legend);
 			wrapped_list.append($legend); 
 		}
+
+		return wrapped_list;
 	}
 
 	function _attachCloseHandler(settings) {
