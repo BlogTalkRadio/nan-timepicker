@@ -14,8 +14,10 @@
 	}
 
 	var _baseDate = _generateBaseDate();
+	var _baseId = 0;
 	var _ONE_DAY = 86400;
-	var _defaults =	{
+	var _defaults = {
+        id: 'nan-timepicker-',
 		className: null,
 		minTime: null,
 		maxTime: null,
@@ -42,8 +44,6 @@
 		hrs: 'hrs'
 	};
 
-	var $elCache = null;
-
 	var methods = {
 
 		init: function(options) {
@@ -66,7 +66,8 @@
 					self = input;
 				}
 
-				var settings = $.extend({}, _defaults);
+				_baseId++;
+				var settings = $.extend({}, _defaults, { id: _defaults.id + _baseId });
 
 				if (options) {
 					settings = $.extend(settings, options);
@@ -78,6 +79,7 @@
 
 				settings = _parseSettings(settings);
 
+				self.data('timepicker-id', settings.id);
 				self.data('timepicker-settings', settings);
 				self.prop('autocomplete', 'off');
 				self.on('click.timepicker focus.timepicker', methods.show);
@@ -108,7 +110,7 @@
 
 			// check if list needs to be rendered
 			if (!list || list.length === 0 || typeof settings.durationTime === 'function') {
-				$elCache = _render(self);
+				_render(self);
 				list = self.data('timepicker-list');
 			}
 
@@ -195,8 +197,16 @@
 			return self;
 		},
 
-		get: function() {
-			return $elCache;
+		getInput: function() {
+			return $(this);
+		},
+
+		getTimepicker: function () {
+			return $(this).data('timepicker-list');
+		},
+        
+		getTimepickerId: function () {
+			return $(this).data('timepicker-id');
 		},
 
 		getSecondsFromMidnight: function() {
@@ -215,9 +225,8 @@
 			_setTimeValue(self, prettyTime);
 		},
 
-		remove: function() {
+		remove: function(timepickerId) {
 			var self = this;
-			$elCache = null;
 
 			// check if this element is a timepicker
 			if (!self.hasClass('ui-timepicker-input')) {
@@ -232,6 +241,9 @@
 			// timepicker-list won't be present unless the user has interacted with this timepicker
 			if (self.data('timepicker-list')) {
 				self.data('timepicker-list').remove();
+			} else {
+				// Ensures the timepicker html is removed                
+				$('#' + timepickerId).remove();
 			}
 
 			self.removeData('timepicker-list');
@@ -310,6 +322,7 @@
 		list = $('<ul />', { 'class': 'ui-timepicker-list' });
 
 		var wrapped_list = $('<div />', { 'class': 'ui-timepicker-wrapper', 'tabindex': -1 });
+		wrapped_list.attr('id', settings.id);
 		wrapped_list.css({'display':'none', 'position': 'absolute' }).append(list);
 
 
@@ -721,7 +734,7 @@
 		var timeValue = null;
 
 		var cursor = list.find('.ui-timepicker-selected');
-		self.trigger('time-pressed', [ $(cursor) ] );
+		self.trigger('timePressed', [ $(cursor) ] );
 
 		if (cursor.hasClass('ui-timepicker-disabled')) {
 			return false;
