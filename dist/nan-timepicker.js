@@ -721,7 +721,7 @@
 		var timeValue = null;
 
 		var cursor = list.find('.ui-timepicker-selected');
-		cursor.trigger('time-selected');
+		self.trigger('time-pressed', cursor);
 
 		if (cursor.hasClass('ui-timepicker-disabled')) {
 			return false;
